@@ -1,0 +1,96 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    -webkit-tap-highlight-color: transparent;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  body {
+    @apply bg-slate-950 text-slate-100 min-h-screen;
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+}
+
+@layer components {
+  .card {
+    @apply bg-slate-800/60 rounded-2xl border border-slate-700/50 backdrop-blur-sm;
+  }
+
+  .btn-primary {
+    @apply bg-brand-600 hover:bg-brand-700 active:bg-brand-800 text-white font-semibold
+           px-6 py-3 rounded-xl transition-all duration-150 flex items-center justify-center gap-2
+           disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  .btn-secondary {
+    @apply bg-slate-700 hover:bg-slate-600 active:bg-slate-500 text-white font-semibold
+           px-6 py-3 rounded-xl transition-all duration-150 flex items-center justify-center gap-2
+           disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  .btn-ghost {
+    @apply hover:bg-slate-700/50 active:bg-slate-600/50 text-slate-300 hover:text-white
+           px-4 py-2 rounded-xl transition-all duration-150 flex items-center justify-center gap-2;
+  }
+
+  .input-field {
+    @apply bg-slate-800 border border-slate-600 focus:border-brand-500 focus:ring-2
+           focus:ring-brand-500/20 rounded-xl px-4 py-3 text-white placeholder:text-slate-500
+           outline-none transition-all w-full;
+  }
+
+  .flag-ok {
+    @apply bg-emerald-500/10 border border-emerald-500/30 text-emerald-300;
+  }
+
+  .flag-warning {
+    @apply bg-amber-500/10 border border-amber-500/30 text-amber-300;
+  }
+
+  .flag-violation {
+    @apply bg-red-500/10 border border-red-500/30 text-red-300;
+  }
+
+  .risk-low {
+    @apply bg-emerald-500/15 text-emerald-300 border border-emerald-500/30;
+  }
+
+  .risk-medium {
+    @apply bg-amber-500/15 text-amber-300 border border-amber-500/30;
+  }
+
+  .risk-high {
+    @apply bg-red-500/15 text-red-300 border border-red-500/30;
+  }
+}
+
+/* Safe area padding for iOS */
+.safe-bottom {
+  padding-bottom: max(env(safe-area-inset-bottom), 1rem);
+}
+
+/* Smooth scrolling */
+.scroll-smooth {
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Loading spinner */
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+.animate-spin { animation: spin 1s linear infinite; }
+
+/* Skeleton loading */
+@keyframes shimmer {
+  0% { background-position: -1000px 0; }
+  100% { background-position: 1000px 0; }
+}
+.skeleton {
+  background: linear-gradient(90deg, #1e293b 25%, #334155 50%, #1e293b 75%);
+  background-size: 1000px 100%;
+  animation: shimmer 2s infinite;
+}
