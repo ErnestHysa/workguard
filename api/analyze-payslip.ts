@@ -66,8 +66,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   try {
     const message = await client.messages.create({
       model: 'claude-sonnet-4-6',
-      max_tokens: 4096,
-      thinking: { type: 'adaptive' },
+      max_tokens: 8192,
       system: SYSTEM_PROMPT(country),
       messages: [
         {
@@ -78,7 +77,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     })
 
     // Extract text from response
-    const textBlock = message.content.find(b => b.type === 'text')
+    const textBlock = message.content.find((b): b is Anthropic.TextBlock => b.type === 'text')
     if (!textBlock || textBlock.type !== 'text') {
       throw new Error('No text response from AI')
     }

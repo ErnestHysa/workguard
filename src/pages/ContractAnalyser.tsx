@@ -5,8 +5,10 @@ import UploadZone from '@/components/UploadZone'
 import RiskBadge from '@/components/RiskBadge'
 import LoadingSpinner from '@/components/LoadingSpinner'
 import DisclaimerBanner from '@/components/DisclaimerBanner'
+import CountryToggle from '@/components/CountryToggle'
 import { extractTextFromFile } from '@/lib/ocr'
 import { analyzeContract } from '@/lib/claude'
+import { useCountry } from '@/hooks/useCountry'
 import type { ContractAnalysis, ContractClause } from '@/types'
 
 type Step = 'upload' | 'extracting' | 'analysing' | 'result' | 'manual'
@@ -66,6 +68,7 @@ function ClauseCard({ clause }: { clause: ContractClause }) {
 }
 
 export default function ContractAnalyser() {
+  const { country, setCountry } = useCountry()
   const [step, setStep] = useState<Step>('upload')
   const [manualText, setManualText] = useState('')
   const [analysis, setAnalysis] = useState<ContractAnalysis | null>(null)
@@ -76,7 +79,7 @@ export default function ContractAnalyser() {
     setStep('analysing')
     setError('')
     try {
-      const result = await analyzeContract(text, 'ireland')
+      const result = await analyzeContract(text, country)
       setAnalysis(result)
       setStep('result')
     } catch (err) {
@@ -113,10 +116,15 @@ export default function ContractAnalyser() {
   return (
     <Layout title="Contract Analyser" showBack>
       <div className="space-y-4">
-        <DisclaimerBanner />
+        <DisclaimerBanner country={country} />
 
         {step === 'upload' && (
           <>
+            <div className="flex items-center justify-between gap-3">
+              <p className="text-sm text-slate-400">Jurisdiction:</p>
+              <CountryToggle country={country} onChange={setCountry} />
+            </div>
+
             {error && (
               <div className="p-3 rounded-xl bg-red-500/10 border border-red-500/30 text-red-300 text-sm">
                 {error}
@@ -141,6 +149,10 @@ export default function ContractAnalyser() {
 
         {step === 'manual' && (
           <div className="space-y-4">
+            <div className="flex items-center justify-between gap-3">
+              <p className="text-sm text-slate-400">Jurisdiction:</p>
+              <CountryToggle country={country} onChange={setCountry} />
+            </div>
             <label className="block text-sm font-medium text-slate-300">
               Paste your employment contract text
             </label>
@@ -164,7 +176,10 @@ export default function ContractAnalyser() {
           <LoadingSpinner message="Reading your contract..." subMessage="Extracting document text" />
         )}
         {step === 'analysing' && (
-          <LoadingSpinner message="Analysing contract..." subMessage="Reviewing clauses under Irish employment law" />
+          <LoadingSpinner
+            message="Analysing contract..."
+            subMessage={`Reviewing clauses under ${country === 'ireland' ? 'Irish' : 'UK'} employment law`}
+          />
         )}
 
         {step === 'result' && analysis && (

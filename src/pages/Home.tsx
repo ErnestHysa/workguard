@@ -1,6 +1,8 @@
-import { FileText, ClipboardList, Clock, HelpCircle, AlertTriangle, CheckCircle, Shield } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { FileText, ClipboardList, Clock, HelpCircle, AlertTriangle, TrendingUp, Shield } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import Layout from '@/components/Layout'
+import { useCountry } from '@/hooks/useCountry'
 
 const quickActions = [
   {
@@ -41,13 +43,67 @@ const quickActions = [
   },
 ]
 
-const statCards = [
-  { icon: AlertTriangle, label: 'Payslips checked', value: '0', color: 'text-amber-400' },
-  { icon: CheckCircle, label: 'All clear', value: '0', color: 'text-emerald-400' },
-  { icon: Shield, label: 'Potential violations', value: '0', color: 'text-red-400' },
-]
+function formatHours(h: number): string {
+  const hrs = Math.floor(h)
+  const mins = Math.round((h - hrs) * 60)
+  if (hrs === 0) return `${mins}m`
+  return mins > 0 ? `${hrs}h ${mins}m` : `${hrs}h`
+}
 
 export default function Home() {
+  const { country } = useCountry()
+  const [shiftCount, setShiftCount] = useState(0)
+  const [totalHours, setTotalHours] = useState(0)
+
+  // Read real shift data from localStorage
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem('workguard_shifts')
+      if (raw) {
+        const shifts: Array<{ durationHours: number }> = JSON.parse(raw)
+        setShiftCount(shifts.length)
+        setTotalHours(shifts.reduce((sum, s) => sum + (s.durationHours || 0), 0))
+      }
+    } catch { /* ignore */ }
+  }, [])
+
+  const nmwRate = country === 'ireland' ? '€14.15/hr' : '£12.71/hr'
+  const nmwLabel = country === 'ireland' ? 'Irish NMW 2026' : 'UK NLW 2026'
+
+  const statCards = [
+    {
+      icon: Clock,
+      label: 'Shifts logged',
+      value: String(shiftCount),
+      color: 'text-brand-400',
+      to: '/shifts',
+    },
+    {
+      icon: TrendingUp,
+      label: 'Hours tracked',
+      value: totalHours > 0 ? formatHours(totalHours) : '0h',
+      color: 'text-emerald-400',
+      to: '/shifts',
+    },
+    {
+      icon: AlertTriangle,
+      label: nmwLabel,
+      value: nmwRate,
+      color: 'text-amber-400',
+      to: '/rights',
+    },
+  ]
+
+  const didYouKnow = country === 'ireland'
+    ? {
+        stat: '59% of hourly workers in Ireland experience wage theft.',
+        detail: 'The most common forms are unpaid overtime, illegal deductions, and being paid below the €14.15/hr minimum wage.',
+      }
+    : {
+        stat: 'UK workers on zero-hours contracts lost an estimated £250M in unpaid wages in 2024.',
+        detail: 'Common issues include unlawful deductions, being paid below the £12.71/hr National Living Wage, and unpaid sick pay.',
+      }
+
   return (
     <Layout>
       {/* Hero */}
@@ -61,14 +117,14 @@ export default function Home() {
         </p>
       </div>
 
-      {/* Stats */}
+      {/* Live Stats */}
       <div className="grid grid-cols-3 gap-2 mb-6">
-        {statCards.map(({ icon: Icon, label, value, color }) => (
-          <div key={label} className="card p-3 text-center">
+        {statCards.map(({ icon: Icon, label, value, color, to }) => (
+          <Link key={label} to={to} className="card p-3 text-center hover:bg-slate-700/50 transition-colors">
             <Icon size={18} className={`${color} mx-auto mb-1`} />
-            <div className="text-xl font-bold text-white">{value}</div>
+            <div className="text-lg font-bold text-white truncate">{value}</div>
             <div className="text-xs text-slate-500 leading-tight">{label}</div>
-          </div>
+          </Link>
         ))}
       </div>
 
@@ -94,15 +150,15 @@ export default function Home() {
         ))}
       </div>
 
-      {/* Know Your Rights Highlight */}
+      {/* Did You Know — country-aware */}
       <div className="card p-4 bg-gradient-to-br from-brand-900/50 to-slate-800/50 border-brand-700/30">
         <div className="flex items-start gap-3">
           <div className="text-2xl">💡</div>
           <div>
             <h3 className="font-semibold text-white text-sm">Did you know?</h3>
             <p className="text-slate-300 text-xs mt-1 leading-relaxed">
-              59% of hourly workers in Ireland experience wage theft. The most common forms are
-              unpaid overtime, illegal deductions, and being paid below minimum wage.
+              <span className="font-semibold text-white">{didYouKnow.stat}</span>{' '}
+              {didYouKnow.detail}
             </p>
             <Link
               to="/rights"
@@ -114,17 +170,29 @@ export default function Home() {
         </div>
       </div>
 
-      {/* Recent Activity placeholder */}
+      {/* Recent Activity */}
       <div className="mt-6">
         <h2 className="text-sm font-semibold text-slate-400 uppercase tracking-wide mb-3">
           Recent Activity
         </h2>
-        <div className="card p-6 text-center">
-          <p className="text-slate-500 text-sm">No activity yet</p>
-          <p className="text-slate-600 text-xs mt-1">
-            Scan a payslip or log your first shift to get started
-          </p>
-        </div>
+        {shiftCount === 0 ? (
+          <div className="card p-6 text-center">
+            <p className="text-slate-500 text-sm">No activity yet</p>
+            <p className="text-slate-600 text-xs mt-1">
+              Scan a payslip or log your first shift to get started
+            </p>
+          </div>
+        ) : (
+          <div className="card p-4">
+            <Link to="/shifts" className="flex items-center justify-between text-sm">
+              <div className="flex items-center gap-2 text-slate-300">
+                <Clock size={14} className="text-brand-400" />
+                <span>{shiftCount} shift{shiftCount !== 1 ? 's' : ''} logged — {formatHours(totalHours)} total</span>
+              </div>
+              <span className="text-brand-400 text-xs">View →</span>
+            </Link>
+          </div>
+        )}
       </div>
     </Layout>
   )
