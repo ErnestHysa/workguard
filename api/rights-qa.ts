@@ -50,7 +50,9 @@ Answer worker questions about employment rights in plain, clear language. Cite s
 - answer: Plain English, 2-4 paragraphs, with specific figures and actionable steps
 - sources: 2-4 authoritative sources (citizensinformation.ie, workplacerelations.ie, specific Acts)
 - relatedTopics: 3-4 related topics the worker might want to know about
-- disclaimer: "WorkGuard provides general information only, not legal advice. For your specific situation, contact the WRC at workplacerelations.ie, your union, or a solicitor."`
+- disclaimer: "${country === 'ireland'
+  ? 'WorkGuard provides general information only, not legal advice. For your specific situation, contact the WRC at workplacerelations.ie, your union, or a solicitor.'
+  : 'WorkGuard provides general information only, not legal advice. For your specific situation, contact ACAS at acas.org.uk, your union, or an employment solicitor.'}"`
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'POST') {

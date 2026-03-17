@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react'
 import { Clock, Play, Square, Plus, Trash2, AlertTriangle, CheckCircle } from 'lucide-react'
 import Layout from '@/components/Layout'
+import CountryToggle from '@/components/CountryToggle'
+import { useCountry } from '@/hooks/useCountry'
 
 interface ShiftEntry {
   id: string
@@ -29,6 +31,12 @@ const STORAGE_KEY = 'workguard_shifts'
 const RATE_KEY = 'workguard_rate'
 
 export default function ShiftLogger() {
+  const { country, setCountry } = useCountry()
+  const currencySymbol = country === 'ireland' ? '€' : '£'
+  const nmwLabel = country === 'ireland' ? 'NMW (2026)' : 'NLW (2026)'
+  const nmwRate = country === 'ireland' ? '€14.15/hr' : '£12.71/hr'
+  const locale = country === 'ireland' ? 'en-IE' : 'en-GB'
+
   const [shifts, setShifts] = useState<ShiftEntry[]>(() => {
     try {
       return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]')
@@ -137,6 +145,10 @@ export default function ShiftLogger() {
     return acc
   }, {})
 
+  const underpaidAction = country === 'ireland'
+    ? { label: 'Contact WRC →', url: 'https://www.workplacerelations.ie/en/complaints_disputes/refer_a_dispute_make_a_complaint/' }
+    : { label: 'Contact ACAS →', url: 'https://www.acas.org.uk/contact' }
+
   return (
     <Layout title="Shift Logger" showBack>
       <div className="space-y-4">
@@ -163,23 +175,26 @@ export default function ShiftLogger() {
           )}
         </div>
 
-        {/* Hourly rate */}
+        {/* Hourly rate + country toggle */}
         <div className="card p-4 flex items-center gap-3">
           <div className="flex-1">
-            <label className="text-xs text-slate-400 font-medium">Your hourly rate (€)</label>
+            <label className="text-xs text-slate-400 font-medium">
+              Your hourly rate ({currencySymbol})
+            </label>
             <input
               type="number"
               value={hourlyRate || ''}
               onChange={e => setHourlyRate(parseFloat(e.target.value) || 0)}
-              placeholder="e.g. 13.50"
+              placeholder={country === 'ireland' ? 'e.g. 14.15' : 'e.g. 12.71'}
               step="0.01"
               min="0"
               className="input-field py-2 mt-1 text-sm"
             />
           </div>
-          <div className="text-right">
-            <p className="text-xs text-slate-400">NMW (2026)</p>
-            <p className="text-sm font-bold text-emerald-400">€14.15/hr</p>
+          <div className="text-right space-y-1">
+            <p className="text-xs text-slate-400">{nmwLabel}</p>
+            <p className="text-sm font-bold text-emerald-400">{nmwRate}</p>
+            <CountryToggle country={country} onChange={setCountry} />
           </div>
         </div>
 
@@ -233,7 +248,7 @@ export default function ShiftLogger() {
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center justify-between">
                               <span className="text-sm font-medium text-white">
-                                {new Date(shift.date + 'T12:00:00').toLocaleDateString('en-IE', { weekday: 'short', day: 'numeric', month: 'short' })}
+                                {new Date(shift.date + 'T12:00:00').toLocaleDateString(locale, { weekday: 'short', day: 'numeric', month: 'short' })}
                               </span>
                               <span className="text-xs text-slate-400">
                                 {formatDuration(shift.durationHours)}
@@ -243,7 +258,7 @@ export default function ShiftLogger() {
                               <span className="text-xs text-slate-500">{shift.startTime} – {shift.endTime}</span>
                               {hourlyRate > 0 && (
                                 <span className="text-xs text-emerald-400">
-                                  €{(shift.durationHours * hourlyRate).toFixed(2)}
+                                  {currencySymbol}{(shift.durationHours * hourlyRate).toFixed(2)}
                                 </span>
                               )}
                             </div>
@@ -305,7 +320,7 @@ export default function ShiftLogger() {
                 Duration: <span className="text-white font-medium">{formatDuration(calcDuration(form.startTime, form.endTime))}</span>
                 {hourlyRate > 0 && (
                   <span className="text-emerald-400 ml-2">
-                    = €{(calcDuration(form.startTime, form.endTime) * hourlyRate).toFixed(2)}
+                    = {currencySymbol}{(calcDuration(form.startTime, form.endTime) * hourlyRate).toFixed(2)}
                   </span>
                 )}
               </p>
@@ -342,16 +357,20 @@ export default function ShiftLogger() {
                 </div>
                 <div className="flex justify-between">
                   <span className="text-slate-400">Hourly rate</span>
-                  <span className="text-white font-medium">{hourlyRate > 0 ? `€${hourlyRate.toFixed(2)}/hr` : 'Not set'}</span>
+                  <span className="text-white font-medium">
+                    {hourlyRate > 0 ? `${currencySymbol}${hourlyRate.toFixed(2)}/hr` : 'Not set'}
+                  </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-slate-400">Expected pay</span>
-                  <span className="text-white font-bold">€{expectedPay.toFixed(2)}</span>
+                  <span className="text-white font-bold">{currencySymbol}{expectedPay.toFixed(2)}</span>
                 </div>
               </div>
 
               <div>
-                <label className="text-xs text-slate-400 mb-1 block">What were you actually paid? (€)</label>
+                <label className="text-xs text-slate-400 mb-1 block">
+                  What were you actually paid? ({currencySymbol})
+                </label>
                 <input
                   type="number"
                   value={actualPay}
@@ -380,12 +399,12 @@ export default function ShiftLogger() {
                         discrepancyStatus === 'overpaid' ? 'text-amber-300' : 'text-emerald-300'
                       }`}>
                         {discrepancyStatus === 'ok' && '✓ Pay matches — looks correct'}
-                        {discrepancyStatus === 'underpaid' && `You may have been underpaid €${Math.abs(discrepancy).toFixed(2)}`}
-                        {discrepancyStatus === 'overpaid' && `You were paid €${discrepancy.toFixed(2)} more than expected`}
+                        {discrepancyStatus === 'underpaid' && `You may have been underpaid ${currencySymbol}${Math.abs(discrepancy).toFixed(2)}`}
+                        {discrepancyStatus === 'overpaid' && `You were paid ${currencySymbol}${discrepancy.toFixed(2)} more than expected`}
                       </p>
                       {discrepancyStatus === 'underpaid' && (
                         <p className="text-xs text-slate-400 mt-0.5">
-                          Expected €{expectedPay.toFixed(2)} · Received €{actual.toFixed(2)}
+                          Expected {currencySymbol}{expectedPay.toFixed(2)} · Received {currencySymbol}{actual.toFixed(2)}
                         </p>
                       )}
                     </div>
@@ -399,15 +418,15 @@ export default function ShiftLogger() {
                 <p className="text-sm font-semibold text-white">What you can do</p>
                 <p className="text-xs text-slate-400">
                   If you believe you've been underpaid, raise it with your employer in writing first.
-                  If unresolved, you can make a free complaint to the WRC.
+                  If unresolved, you can get free help from {country === 'ireland' ? 'the WRC' : 'ACAS'}.
                 </p>
                 <a
-                  href="https://www.workplacerelations.ie"
+                  href={underpaidAction.url}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="btn-primary text-sm"
                 >
-                  Contact WRC →
+                  {underpaidAction.label}
                 </a>
               </div>
             )}
@@ -424,5 +443,5 @@ function getWeekLabel(dateStr: string): string {
   const diffDays = Math.floor((now.getTime() - date.getTime()) / 86400000)
   if (diffDays < 7) return 'This week'
   if (diffDays < 14) return 'Last week'
-  return date.toLocaleDateString('en-IE', { month: 'long', year: 'numeric' })
+  return date.toLocaleDateString('en-GB', { month: 'long', year: 'numeric' })
 }

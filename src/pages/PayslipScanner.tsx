@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { FileText, CheckCircle, AlertTriangle, XCircle, Download, ChevronDown, ChevronUp } from 'lucide-react'
+import { FileText, CheckCircle, AlertTriangle, XCircle, ChevronDown, ChevronUp } from 'lucide-react'
 import Layout from '@/components/Layout'
 import UploadZone from '@/components/UploadZone'
 import FlagBadge from '@/components/FlagBadge'
@@ -265,15 +265,8 @@ export default function PayslipScanner() {
 
             {/* Restart */}
             <div className="flex gap-3">
-              <button onClick={reset} className="btn-secondary flex-1 text-sm">
+              <button onClick={reset} className="btn-secondary w-full text-sm">
                 Scan another payslip
-              </button>
-              <button
-                onClick={() => {/* TODO: save to history */}}
-                className="btn-ghost flex items-center gap-2 text-sm"
-              >
-                <Download size={14} />
-                Save
               </button>
             </div>
           </div>
