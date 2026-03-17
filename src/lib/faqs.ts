@@ -110,7 +110,7 @@ export const IRELAND_FAQS: FAQ[] = [
     id: 'ie-16',
     category: 'Leave',
     question: 'Am I entitled to maternity leave?',
-    answer: 'Yes. You are entitled to 26 weeks of maternity leave, plus an optional 16 weeks of additional unpaid maternity leave. Maternity Benefit (paid by the Department of Social Protection, not your employer) is approximately €289/week for the first 26 weeks, provided you have sufficient PRSI contributions. Your job is fully protected while on maternity leave. You must notify your employer at least 4 weeks in advance in writing. Paternity leave is 2 weeks (Paternity Benefit approx €289/week). Parent\'s Leave is 9 weeks per parent.',
+    answer: 'Yes. You are entitled to 26 weeks of maternity leave, plus an optional 16 weeks of additional unpaid maternity leave. Maternity Benefit (paid by the Department of Social Protection, not your employer) is €299/week for the first 26 weeks from 1 January 2026, provided you have sufficient PRSI contributions. Your job is fully protected while on maternity leave. You must notify your employer at least 4 weeks in advance in writing. Paternity leave is 2 weeks (Paternity Benefit €299/week from 1 January 2026). Parent\'s Leave is 9 weeks per parent (Parent\'s Benefit €299/week).',
     tags: ['maternity leave', 'pregnancy', 'family leave', 'paternity leave']
   },
   {

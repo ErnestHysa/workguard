@@ -89,7 +89,8 @@ ILLEGAL deductions (without prior written consent):
 ### PRSI (Pay-Related Social Insurance) 2026
 - Employee PRSI: 4.2% from 1 Jan 2026 (increased from 4.1% in 2025)
 - Employee PRSI will rise to 4.35% from 1 October 2026
-- Employer PRSI: 11.40% (standard); 9.15% for weekly income of €441 or less
+- Employer PRSI (Jan–Sep 2026): 11.25% (standard); 9.0% for weekly income ≤ €552 (reduced rate)
+- Employer PRSI (from Oct 2026): 11.40% (standard); 9.15% for weekly income ≤ €552 (reduced rate)
 - Class A applies to most employees. Class S for self-employed.
 - No PRSI on income below weekly threshold (approx €352/week)
 
@@ -143,9 +144,9 @@ ILLEGAL deductions (without prior written consent):
 
 ### Maternity / Parental Leave
 - Maternity leave: 26 weeks (+ optional 16 weeks additional unpaid)
-- Maternity Benefit: approx €289/week from Dept of Social Protection (PRSI-linked)
-- Paternity leave: 2 weeks paid (Paternity Benefit approx €289/week)
-- Parent's leave: 9 weeks per parent (Parent's Benefit — PRSI-linked, approx €289/week)
+- Maternity Benefit: €299/week (from 1 January 2026) from Dept of Social Protection (PRSI-linked)
+- Paternity leave: 2 weeks paid (Paternity Benefit €299/week (from 1 January 2026))
+- Parent's leave: 9 weeks per parent (Parent's Benefit — PRSI-linked, €299/week (from 1 January 2026))
 - All leave protects job and employment rights
 
 ### Zero-Hours / Banded Hours
