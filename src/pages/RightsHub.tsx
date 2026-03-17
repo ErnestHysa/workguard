@@ -3,11 +3,30 @@ import { HelpCircle, Search, Send, BookOpen, ExternalLink, ChevronDown, ChevronU
 import Layout from '@/components/Layout'
 import DisclaimerBanner from '@/components/DisclaimerBanner'
 import LoadingSpinner from '@/components/LoadingSpinner'
+import CountryToggle from '@/components/CountryToggle'
 import { askRightsQuestion } from '@/lib/claude'
 import { IRELAND_FAQS } from '@/lib/faqs'
+import { useCountry } from '@/hooks/useCountry'
 import type { RightsAnswer, FAQ } from '@/types'
 
 const CATEGORIES = ['All', 'Pay', 'Hours', 'Leave', 'Tips', 'Contracts', 'Dismissal', 'Sick Pay', 'WRC']
+
+const QUICK_QUESTIONS: Record<'ireland' | 'uk', string[]> = {
+  ireland: [
+    'Can my employer keep my tips?',
+    'What is the minimum wage in Ireland in 2026?',
+    'Am I entitled to overtime pay?',
+    'How do I make a WRC complaint?',
+    'My employer is making illegal deductions — what can I do?',
+  ],
+  uk: [
+    'What is the National Living Wage in 2026?',
+    'Can I get statutory sick pay from day one?',
+    'What are my rights on a zero-hours contract?',
+    'How do I make an Employment Tribunal claim?',
+    'Can my employer enforce a non-compete clause?',
+  ],
+}
 
 function FAQCard({ faq }: { faq: FAQ }) {
   const [open, setOpen] = useState(false)
@@ -78,6 +97,7 @@ function AnswerCard({ answer }: { answer: RightsAnswer }) {
 }
 
 export default function RightsHub() {
+  const { country, setCountry } = useCountry()
   const [activeTab, setActiveTab] = useState<'faq' | 'ask'>('faq')
   const [search, setSearch] = useState('')
   const [category, setCategory] = useState('All')
@@ -86,6 +106,7 @@ export default function RightsHub() {
   const [answer, setAnswer] = useState<RightsAnswer | null>(null)
   const [error, setError] = useState('')
 
+  // Only Ireland FAQs exist for now — for UK, show the ask-AI tab
   const filteredFAQs = IRELAND_FAQS.filter(faq => {
     const matchCat = category === 'All' || faq.category === category
     const matchSearch = !search || faq.question.toLowerCase().includes(search.toLowerCase()) ||
@@ -99,7 +120,7 @@ export default function RightsHub() {
     setError('')
     setAnswer(null)
     try {
-      const result = await askRightsQuestion(question, 'ireland')
+      const result = await askRightsQuestion(question, country)
       setAnswer(result)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to get answer')
@@ -113,10 +134,34 @@ export default function RightsHub() {
     setActiveTab('ask')
   }
 
+  const usefulLinks = country === 'ireland'
+    ? [
+        { label: 'Workplace Relations Commission', url: 'https://www.workplacerelations.ie' },
+        { label: 'Citizens Information — Employment', url: 'https://www.citizensinformation.ie/en/employment/' },
+        { label: 'Revenue — PAYE & Tax', url: 'https://www.revenue.ie/en/jobs-and-pensions/' },
+      ]
+    : [
+        { label: 'ACAS — Free Advice & Early Conciliation', url: 'https://www.acas.org.uk' },
+        { label: 'GOV.UK — Employment Rights', url: 'https://www.gov.uk/browse/employing-people/contracts' },
+        { label: 'Employment Tribunal Service', url: 'https://www.gov.uk/employment-tribunals' },
+      ]
+
   return (
     <Layout title="Know Your Rights" showBack>
       <div className="space-y-4">
-        <DisclaimerBanner />
+        <DisclaimerBanner country={country} />
+
+        {/* Country toggle */}
+        <div className="flex items-center justify-between gap-3">
+          <p className="text-sm text-slate-400">Law for:</p>
+          <CountryToggle country={country} onChange={(c) => {
+            setCountry(c)
+            setAnswer(null)
+            setQuestion('')
+            setSearch('')
+            setCategory('All')
+          }} />
+        </div>
 
         {/* Tabs */}
         <div className="flex gap-1 bg-slate-800/50 rounded-xl p-1">
@@ -141,48 +186,63 @@ export default function RightsHub() {
         {/* FAQ Tab */}
         {activeTab === 'faq' && (
           <div className="space-y-3">
-            {/* Search */}
-            <div className="relative">
-              <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500" />
-              <input
-                type="search"
-                value={search}
-                onChange={e => setSearch(e.target.value)}
-                placeholder="Search rights..."
-                className="input-field pl-10 py-2.5 text-sm"
-              />
-            </div>
-
-            {/* Category filter */}
-            <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-none">
-              {CATEGORIES.map(cat => (
+            {country === 'uk' ? (
+              <div className="card p-5 text-center space-y-3">
+                <p className="text-slate-300 text-sm">UK FAQ library coming soon.</p>
+                <p className="text-slate-400 text-xs">Use the <strong className="text-white">Ask AI</strong> tab to get instant answers about your UK employment rights.</p>
                 <button
-                  key={cat}
-                  onClick={() => setCategory(cat)}
-                  className={`px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-all shrink-0 ${
-                    category === cat
-                      ? 'bg-brand-600 text-white'
-                      : 'bg-slate-800 text-slate-400 hover:text-white'
-                  }`}
+                  onClick={() => setActiveTab('ask')}
+                  className="btn-primary text-sm mx-auto"
                 >
-                  {cat}
-                </button>
-              ))}
-            </div>
-
-            {filteredFAQs.length === 0 ? (
-              <div className="card p-6 text-center">
-                <p className="text-slate-500 text-sm">No results for "{search}"</p>
-                <button onClick={() => handleQuickQuestion(search)} className="text-brand-400 text-sm underline mt-2">
-                  Ask the AI instead →
+                  Ask AI →
                 </button>
               </div>
             ) : (
-              <div className="space-y-2">
-                {filteredFAQs.map(faq => (
-                  <FAQCard key={faq.id} faq={faq} />
-                ))}
-              </div>
+              <>
+                {/* Search */}
+                <div className="relative">
+                  <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500" />
+                  <input
+                    type="search"
+                    value={search}
+                    onChange={e => setSearch(e.target.value)}
+                    placeholder="Search rights..."
+                    className="input-field pl-10 py-2.5 text-sm"
+                  />
+                </div>
+
+                {/* Category filter */}
+                <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-none">
+                  {CATEGORIES.map(cat => (
+                    <button
+                      key={cat}
+                      onClick={() => setCategory(cat)}
+                      className={`px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-all shrink-0 ${
+                        category === cat
+                          ? 'bg-brand-600 text-white'
+                          : 'bg-slate-800 text-slate-400 hover:text-white'
+                      }`}
+                    >
+                      {cat}
+                    </button>
+                  ))}
+                </div>
+
+                {filteredFAQs.length === 0 ? (
+                  <div className="card p-6 text-center">
+                    <p className="text-slate-500 text-sm">No results for "{search}"</p>
+                    <button onClick={() => handleQuickQuestion(search)} className="text-brand-400 text-sm underline mt-2">
+                      Ask the AI instead →
+                    </button>
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    {filteredFAQs.map(faq => (
+                      <FAQCard key={faq.id} faq={faq} />
+                    ))}
+                  </div>
+                )}
+              </>
             )}
 
             {/* Prompt to ask AI */}
@@ -205,13 +265,7 @@ export default function RightsHub() {
             {!answer && !loading && (
               <div className="space-y-2">
                 <p className="text-xs text-slate-500 font-medium uppercase tracking-wide">Common questions</p>
-                {[
-                  'Can my employer keep my tips?',
-                  'What is the minimum wage in Ireland?',
-                  'Am I entitled to overtime pay?',
-                  'How do I make a WRC complaint?',
-                  'My employer is making illegal deductions — what can I do?',
-                ].map(q => (
+                {QUICK_QUESTIONS[country].map(q => (
                   <button
                     key={q}
                     onClick={() => handleQuickQuestion(q)}
@@ -232,7 +286,11 @@ export default function RightsHub() {
               <textarea
                 value={question}
                 onChange={e => setQuestion(e.target.value)}
-                placeholder="e.g. My employer charged me for a uniform without asking — is this legal?"
+                placeholder={
+                  country === 'ireland'
+                    ? 'e.g. My employer charged me for a uniform without asking — is this legal?'
+                    : 'e.g. Can my employer fire me without notice during my probation?'
+                }
                 rows={3}
                 className="input-field resize-none text-sm"
                 onKeyDown={e => {
@@ -261,7 +319,7 @@ export default function RightsHub() {
             {loading && (
               <LoadingSpinner
                 message="Researching your question..."
-                subMessage="Checking Irish employment law"
+                subMessage={`Checking ${country === 'ireland' ? 'Irish' : 'UK'} employment law`}
               />
             )}
 
@@ -287,14 +345,10 @@ export default function RightsHub() {
               </div>
             )}
 
-            {/* WRC Links */}
+            {/* Useful Links */}
             <div className="card p-4 space-y-2">
               <p className="text-xs font-semibold text-slate-400 uppercase tracking-wide">Useful Links</p>
-              {[
-                { label: 'Workplace Relations Commission', url: 'https://www.workplacerelations.ie' },
-                { label: 'Citizens Information — Employment', url: 'https://www.citizensinformation.ie/en/employment/' },
-                { label: 'Revenue — PAYE & Tax', url: 'https://www.revenue.ie/en/jobs-and-pensions/' },
-              ].map(({ label, url }) => (
+              {usefulLinks.map(({ label, url }) => (
                 <a
                   key={url}
                   href={url}

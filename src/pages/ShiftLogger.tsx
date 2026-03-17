@@ -20,8 +20,9 @@ function formatDuration(hours: number): string {
 function calcDuration(start: string, end: string): number {
   const [sh, sm] = start.split(':').map(Number)
   const [eh, em] = end.split(':').map(Number)
-  const diff = (eh * 60 + em) - (sh * 60 + sm)
-  return diff > 0 ? diff / 60 : 0
+  let diff = (eh * 60 + em) - (sh * 60 + sm)
+  if (diff < 0) diff += 24 * 60 // overnight shift (e.g. 22:00 → 06:00)
+  return diff / 60
 }
 
 const STORAGE_KEY = 'workguard_shifts'

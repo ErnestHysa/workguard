@@ -84,7 +84,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       ],
     })
 
-    const textBlock = message.content.find(b => b.type === 'text')
+    const textBlock = message.content.find((b): b is Anthropic.TextBlock => b.type === 'text')
     if (!textBlock || textBlock.type !== 'text') {
       throw new Error('No text response from AI')
     }

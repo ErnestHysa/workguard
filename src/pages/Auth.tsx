@@ -129,7 +129,7 @@ export default function Auth() {
       </div>
 
       <footer className="p-4 text-center text-xs text-slate-600">
-        © 2025 WorkGuard · Not legal advice · GDPR compliant
+        © 2026 WorkGuard · Not legal advice · GDPR compliant
       </footer>
     </div>
   )

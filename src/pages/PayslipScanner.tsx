@@ -5,8 +5,10 @@ import UploadZone from '@/components/UploadZone'
 import FlagBadge from '@/components/FlagBadge'
 import LoadingSpinner from '@/components/LoadingSpinner'
 import DisclaimerBanner from '@/components/DisclaimerBanner'
+import CountryToggle from '@/components/CountryToggle'
 import { extractTextFromFile } from '@/lib/ocr'
 import { analyzePayslip } from '@/lib/claude'
+import { useCountry } from '@/hooks/useCountry'
 import type { PayslipAnalysis } from '@/types'
 
 type Step = 'upload' | 'extracting' | 'analysing' | 'result' | 'manual'
@@ -18,17 +20,20 @@ const statusConfig = {
 }
 
 export default function PayslipScanner() {
+  const { country, setCountry } = useCountry()
   const [step, setStep] = useState<Step>('upload')
   const [manualText, setManualText] = useState('')
   const [analysis, setAnalysis] = useState<PayslipAnalysis | null>(null)
   const [error, setError] = useState('')
   const [showDeductions, setShowDeductions] = useState(false)
 
+  const currencySymbol = country === 'ireland' ? '€' : '£'
+
   const processText = async (text: string) => {
     setStep('analysing')
     setError('')
     try {
-      const result = await analyzePayslip(text, 'ireland')
+      const result = await analyzePayslip(text, country)
       setAnalysis(result)
       setStep('result')
     } catch (err) {
@@ -64,14 +69,23 @@ export default function PayslipScanner() {
 
   const statusInfo = analysis ? statusConfig[analysis.overallStatus] : null
 
+  const wrcOrAcas = country === 'ireland'
+    ? { label: 'Make a WRC Complaint →', url: 'https://www.workplacerelations.ie/en/complaints_disputes/refer_a_dispute_make_a_complaint/' }
+    : { label: 'Contact ACAS →', url: 'https://www.acas.org.uk/contact' }
+
   return (
     <Layout title="Payslip Scanner" showBack>
       <div className="space-y-4">
-        <DisclaimerBanner />
+        <DisclaimerBanner country={country} />
 
         {/* Upload Step */}
         {step === 'upload' && (
           <>
+            <div className="flex items-center justify-between gap-3">
+              <p className="text-sm text-slate-400">Checking under:</p>
+              <CountryToggle country={country} onChange={setCountry} />
+            </div>
+
             {error && (
               <div className="p-3 rounded-xl bg-red-500/10 border border-red-500/30 text-red-300 text-sm">
                 {error}
@@ -95,6 +109,10 @@ export default function PayslipScanner() {
         {/* Manual Entry */}
         {step === 'manual' && (
           <div className="space-y-4">
+            <div className="flex items-center justify-between gap-3">
+              <p className="text-sm text-slate-400">Checking under:</p>
+              <CountryToggle country={country} onChange={setCountry} />
+            </div>
             <div>
               <label className="block text-sm font-medium text-slate-300 mb-2">
                 Paste or type your payslip details
@@ -134,7 +152,7 @@ export default function PayslipScanner() {
         {step === 'analysing' && (
           <LoadingSpinner
             message="Analysing your payslip..."
-            subMessage="Checking against Irish employment law"
+            subMessage={`Checking against ${country === 'ireland' ? 'Irish' : 'UK'} employment law`}
           />
         )}
 
@@ -156,7 +174,7 @@ export default function PayslipScanner() {
               {analysis.totalPotentialUnderpayment && analysis.totalPotentialUnderpayment > 0 && (
                 <div className="mt-3 p-3 rounded-lg bg-red-500/20 border border-red-500/30">
                   <p className="text-red-300 font-semibold text-sm">
-                    ⚠️ Potential underpayment: €{analysis.totalPotentialUnderpayment.toFixed(2)}
+                    ⚠️ Potential underpayment: {currencySymbol}{analysis.totalPotentialUnderpayment.toFixed(2)}
                   </p>
                 </div>
               )}
@@ -171,7 +189,7 @@ export default function PayslipScanner() {
               <div className="space-y-2">
                 <div className="flex justify-between text-sm">
                   <span className="text-slate-400">Gross Pay</span>
-                  <span className="text-white font-medium">€{analysis.grossPay.toFixed(2)}</span>
+                  <span className="text-white font-medium">{currencySymbol}{analysis.grossPay.toFixed(2)}</span>
                 </div>
                 {analysis.hoursWorked && (
                   <div className="flex justify-between text-sm">
@@ -182,7 +200,7 @@ export default function PayslipScanner() {
                 {analysis.hourlyRate && (
                   <div className="flex justify-between text-sm">
                     <span className="text-slate-400">Effective Rate</span>
-                    <span className="text-white font-medium">€{analysis.hourlyRate.toFixed(2)}/hr</span>
+                    <span className="text-white font-medium">{currencySymbol}{analysis.hourlyRate.toFixed(2)}/hr</span>
                   </div>
                 )}
 
@@ -199,7 +217,7 @@ export default function PayslipScanner() {
                     {showDeductions && analysis.deductions.map((d, i) => (
                       <div key={i} className={`flex justify-between text-sm pl-3 ${!d.legal ? 'text-red-300' : ''}`}>
                         <span className="text-slate-400">{d.name} {!d.legal && '⚠️'}</span>
-                        <span>-€{d.amount.toFixed(2)}</span>
+                        <span>-{currencySymbol}{d.amount.toFixed(2)}</span>
                       </div>
                     ))}
                   </>
@@ -208,7 +226,7 @@ export default function PayslipScanner() {
                 <div className="h-px bg-slate-700" />
                 <div className="flex justify-between text-base">
                   <span className="font-semibold text-white">Net Pay</span>
-                  <span className="font-bold text-white">€{analysis.netPay.toFixed(2)}</span>
+                  <span className="font-bold text-white">{currencySymbol}{analysis.netPay.toFixed(2)}</span>
                 </div>
               </div>
             </div>
@@ -230,15 +248,17 @@ export default function PayslipScanner() {
               <div className="card p-4 space-y-3 border-red-500/30">
                 <h3 className="font-semibold text-white">What to do next</h3>
                 <p className="text-slate-300 text-sm">
-                  If you believe your rights have been violated, you can make a free complaint to the Workplace Relations Commission.
+                  {country === 'ireland'
+                    ? 'If you believe your rights have been violated, you can make a free complaint to the Workplace Relations Commission.'
+                    : 'If you believe your rights have been violated, contact ACAS for free early conciliation before an Employment Tribunal claim.'}
                 </p>
                 <a
-                  href="https://www.workplacerelations.ie/en/complaints_disputes/refer_a_dispute_make_a_complaint/"
+                  href={wrcOrAcas.url}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="btn-primary text-sm"
                 >
-                  Make a WRC Complaint →
+                  {wrcOrAcas.label}
                 </a>
               </div>
             )}
