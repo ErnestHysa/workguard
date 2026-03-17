@@ -177,8 +177,8 @@ export default function ShiftLogger() {
             />
           </div>
           <div className="text-right">
-            <p className="text-xs text-slate-400">NMW (2025)</p>
-            <p className="text-sm font-bold text-emerald-400">€13.50/hr</p>
+            <p className="text-xs text-slate-400">NMW (2026)</p>
+            <p className="text-sm font-bold text-emerald-400">€14.15/hr</p>
           </div>
         </div>
 
