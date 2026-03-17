@@ -7,14 +7,26 @@ const SYSTEM_PROMPT = (country: string) => `You are WorkGuard's employment contr
 
 ## Jurisdiction: ${country === 'ireland' ? 'Ireland' : 'UK'}
 
-### Irish Context:
-- Non-compete clauses: No statutory limit; courts apply reasonableness test. 6-12 months typically reasonable. 2+ years likely unenforceable.
-- Deductions: Must have written consent; cannot take below minimum wage
-- Garden leave: Worker must be paid during garden leave
-- Right-to-search: Must have written consent; must be proportionate
-- Probation: Max 6 months (extendable to 12 months with notice in limited cases) — workers still have basic rights during probation
-- Secondary employment: Restrictions must be proportionate
-- Intellectual property: Broad IP assignments should be scrutinised
+### Irish Employment Law Context (2026):
+- **Non-compete**: No statutory cap; courts apply strict reasonableness test. 6–12 months typically upheld; 2+ years almost always struck down. Must protect a genuine business interest. Courts will NOT blue-pencil (rewrite) to rescue an overly broad clause.
+- **Deductions**: Payment of Wages Act 1991 — only PAYE/PRSI/USC, court orders, and prior written-consent deductions are lawful. Cannot take pay below NMW (€14.15/hr from 1 Jan 2026).
+- **Training clawback**: Must be proportionate, specified in writing in advance, and set out the amount and circumstances. Open-ended clawbacks are void.
+- **Garden leave**: Worker remains employed and must receive full pay and benefits throughout. Combined duration of garden leave + non-compete must be reasonable holistically.
+- **Right-to-search**: No common law right to search employees — explicit prior written consent required; must be proportionate and dignified.
+- **Probation**: Maximum 6 months under EU Transparent and Predictable Working Conditions Regulations 2022 (extendable to 12 months in limited circumstances with advance notice). Rights during probation: NMW, no discrimination, right to minimum notice, SSP after 13 weeks' service.
+- **Secondary employment**: Blanket bans are hard to enforce unless there is a genuine conflict of interest or competition.
+- **Intellectual property**: Broad IP assignment clauses covering inventions made outside work hours using personal resources are increasingly unenforceable. Workers should carve out pre-existing IP.
+- **Data/monitoring**: Must comply with GDPR and Data Protection Act 2018. Employees must be informed. Monitoring must be proportionate.
+- **Zero-hours**: Largely prohibited under Employment (Miscellaneous Provisions) Act 2018 except genuine casual/emergency work.
+- **Notice**: Statutory minimums — 13 wks–2 yrs: 1 week; 2–5 yrs: 2 weeks; 5–10 yrs: 4 weeks; 10–15 yrs: 6 weeks; 15+ yrs: 8 weeks. Unequal notice (worker gives more than employer) should be flagged.
+
+### UK Employment Law Context (2026):
+- **Non-compete**: Must be reasonable in scope, duration, and geography. 3–6 months typically reasonable; 12+ months needs strong justification. Courts CAN blue-pencil (sever unreasonable parts).
+- **Employment Rights Act 2025** (Royal Assent 18 Dec 2025): Day-one paternity/parental leave rights from 6 April 2026; SSP from day one (no waiting days) from 6 April 2026; unfair dismissal qualifying period reduces from 2 years → 6 months from 1 Jan 2027; zero-hours guaranteed hours rights from 2027; fire-and-rehire automatically unfair from 1 Jan 2027.
+- **Probation**: No statutory maximum. Currently 2-year qualifying period for unfair dismissal (reducing to 6 months from 1 Jan 2027 under ERA 2025).
+- **Working time**: UK workers CAN sign an individual opt-out from the 48-hour maximum (unlike Ireland).
+- **NMW**: National Living Wage £12.71/hr (21+) from April 2026; NMW £10.85 (18–20); £8.00 (16–17 and apprentices).
+- **SSP**: £123.25/week from 6 April 2026; payable from day one; all employees eligible regardless of earnings.
 
 ## Output: Return ONLY valid JSON:
 {

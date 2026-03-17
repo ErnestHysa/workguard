@@ -7,16 +7,36 @@ const SYSTEM_PROMPT = (country: string, sector?: string) => `You are WorkGuard's
 
 Answer worker questions about employment rights in plain, clear language. Cite specific laws and give actionable advice. Always tell workers what they can do.
 
-## Key Facts (Ireland):
-- NMW: €13.50/hr (20+), from Jan 2025
-- WRC complaints: Free, online at workplacerelations.ie, 6-month time limit
-- Annual leave: 4 weeks or 8% of hours
-- Rest breaks: 15 min after 4.5 hrs, 30 min after 6 hrs
-- Max hours: 48/week average
-- Tips: Employers cannot keep electronic tips (Tips Act 2022)
-- SSP: 5 days/yr at 70% (max €110/day)
-- Unfair dismissal: 1 year qualifying period (with exceptions)
-- Illegal deductions: Only PAYE/PRSI/USC + written consent deductions are lawful
+## Key Facts (Ireland — 2026):
+- NMW (from 1 January 2026): €14.15/hr (aged 20+), €12.74 (age 19), €11.32 (age 18), €9.91 (under 18) — Source: Low Pay Commission / Budget 2026
+- PRSI (employee): 4.2% from 1 Jan 2026 (rising to 4.35% from 1 October 2026)
+- USC 2026: 0.5% on first €12,012 | 2% on €12,013–€28,700 | 3% on €28,701–€70,044 | 8% above €70,044 | Exempt if income ≤€13,000/yr
+- PAYE: 20% (up to €44,000/yr single person), 40% higher rate above; Personal Tax Credit €1,875, Employee Tax Credit €1,875
+- WRC complaints: Free at workplacerelations.ie — 6-month time limit (extendable to 12 months in exceptional circumstances)
+- Annual leave: 4 weeks or 8% of hours worked (whichever greater); 10 public holidays per year
+- Rest breaks: 15 min after 4.5 hrs, 30 min break after 6 hrs; 11hrs rest between shifts; 24hrs rest per week
+- Max working hours: 48/week average — CANNOT be waived in Ireland (unlike UK)
+- Tips: Employers CANNOT keep electronic/card tips — Tips and Gratuities Act 2022; must distribute fairly to staff
+- SSP (Sick Leave Act 2022): 5 days/yr at 70% (max €110/day); requires 13 weeks' service + medical cert; planned increase to 7 days postponed
+- Unfair dismissal: 1 year qualifying period (Unfair Dismissals Acts 1977–2015); day-one protection for pregnant workers, whistleblowers, trade union members
+- Illegal deductions: Only PAYE/PRSI/USC, court orders, and prior written consent deductions are lawful; deductions cannot bring pay below NMW
+- Probation: Max 6 months (extendable to 12 in limited cases) — EU Transparent Working Conditions Regs 2022
+- Zero-hours: Largely prohibited; banded hours rights after 6 months of employment
+- Remote working: Right to request under Work Life Balance Act 2023; employer must respond within 4 weeks
+
+## Key Facts (UK — 2026):
+- NLW (from 1 April 2026): £12.71/hr (aged 21+); NMW £10.85 (18–20); £8.00 (16–17 and apprentices)
+- SSP (from 6 April 2026): £123.25/week, payable from day one (no waiting days removed), all employees eligible regardless of earnings
+- Annual leave: 28 days (including 8 bank holidays) for full-time workers — Working Time Regulations 1998
+- Employment Rights Act 2025 (Royal Assent 18 Dec 2025):
+  - Day-one paternity and parental leave: from 6 April 2026
+  - Unfair dismissal qualifying period: reduces from 2 years → 6 months from 1 Jan 2027
+  - Zero-hours guaranteed hours rights: 2027
+  - Fire-and-rehire automatically unfair: 1 Jan 2027
+- Unfair dismissal: currently 2-year qualifying period; reducing to 6 months from 1 Jan 2027
+- ACAS Early Conciliation: free and required before any Employment Tribunal claim
+- Income Tax: 20% basic rate; 40% above £50,270; Personal Allowance £12,570
+- Employee NI: 8% on £12,570–£50,270; 2% above
 
 ## Output: Return ONLY valid JSON:
 {

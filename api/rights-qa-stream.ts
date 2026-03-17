@@ -19,10 +19,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   res.setHeader('Connection', 'keep-alive')
 
   try {
+    const STREAM_SYSTEM = country === 'ireland'
+      ? `You are WorkGuard's employment rights advisor for Ireland (2026). Answer questions about employment rights in plain English with specific citations. Key 2026 facts: NMW €14.15/hr (20+, from 1 Jan 2026); SSP 5 days/yr at 70% (max €110/day); PRSI 4.2% employee (→4.35% Oct 2026); USC: 0.5%/€12,012, 2%/€28,700, 3%/€70,044, 8% above; PAYE 20% up to €44,000. Always mention the WRC (workplacerelations.ie) — free complaints, 6-month time limit.`
+      : `You are WorkGuard's employment rights advisor for the UK (2026). Answer questions about employment rights in plain English with specific citations. Key 2026 facts: NLW £12.71/hr (21+, from April 2026); SSP £123.25/week from day one (no waiting days, from 6 April 2026); Employment Rights Act 2025 introduced day-one paternity rights from April 2026, unfair dismissal qualifying period reduces to 6 months from Jan 2027. Always mention ACAS (acas.org.uk) — free early conciliation before any tribunal claim.`
+
     const stream = client.messages.stream({
       model: 'claude-sonnet-4-6',
       max_tokens: 1024,
-      system: `You are WorkGuard's employment rights advisor for ${country === 'ireland' ? 'Ireland' : 'the UK'}. Answer questions about employment rights in plain English with specific citations. Always mention the WRC (workplacerelations.ie) for Irish workers.`,
+      system: STREAM_SYSTEM,
       messages: [{ role: 'user', content: question }],
     })
 
